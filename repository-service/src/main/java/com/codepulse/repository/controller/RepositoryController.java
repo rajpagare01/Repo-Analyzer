@@ -1,6 +1,7 @@
 package com.codepulse.repository.controller;
 
 import com.codepulse.repository.dto.*;
+import com.codepulse.repository.service.AiReviewService;
 import com.codepulse.repository.service.RepositoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 public class RepositoryController {
 
     private final RepositoryService repositoryService;
+    private final AiReviewService aiReviewService;
 
     /**
      * Submit a GitHub repository for analysis.
@@ -57,5 +59,25 @@ public class RepositoryController {
     @GetMapping("/{id}/report")
     public ResponseEntity<ReportResponse> getReport(@PathVariable Long id) {
         return ResponseEntity.ok(repositoryService.getReport(id));
+    }
+
+    /**
+     * Get or generate AI review for a completed repository.
+     */
+    @GetMapping("/{id}/ai-review")
+    public ResponseEntity<AiReviewResponse> getAiReview(@PathVariable Long id) {
+        return ResponseEntity.ok(aiReviewService.getOrGenerateReview(id));
+    }
+
+    /**
+     * Generate and download PDF report.
+     */
+    @GetMapping(value = "/{id}/pdf-report", produces = org.springframework.http.MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> downloadPdfReport(@PathVariable Long id) {
+        byte[] pdfBytes = aiReviewService.generatePdfReport(id);
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "CodePulse_Report.pdf");
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
 }

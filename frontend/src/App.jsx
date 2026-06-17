@@ -3,6 +3,7 @@ import Header from './components/Header';
 import RepoForm from './components/RepoForm';
 import StatusPoller from './components/StatusPoller';
 import ReportCard from './components/ReportCard';
+import AIReviewCard from './components/AIReviewCard';
 import { submitRepository, getStatus, getReport } from './services/api';
 import './App.css';
 
@@ -108,13 +109,16 @@ export default function App() {
           )}
 
           {view === 'report' && report && (
-            <ReportCard report={report} onReset={handleReset} />
+            <>
+              <ReportCard report={report} onReset={handleReset} />
+              <AIReviewCard reportId={repoId} />
+            </>
           )}
         </div>
       </main>
 
       <footer className="app-footer">
-        <p>CodePulse AI · Repository Quality Analyzer · Phase 1 MVP</p>
+        <p>CodePulse AI · Repository Quality Analyzer</p>
       </footer>
     </div>
   );
