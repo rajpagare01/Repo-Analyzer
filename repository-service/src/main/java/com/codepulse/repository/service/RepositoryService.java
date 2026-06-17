@@ -134,6 +134,17 @@ public class RepositoryService {
                     .overallScore(analysis.getOverallScore())
                     .totalFiles(analysis.getTotalFiles())
                     .totalLines(analysis.getTotalLines())
+                    .averageComplexity(analysis.getAverageComplexity())
+                    .highComplexityFunctions(analysis.getHighComplexityFunctions())
+                    .complexityScore(analysis.getComplexityScore())
+                    .maintainabilityIndex(analysis.getMaintainabilityIndex())
+                    .maintainabilityScore(analysis.getMaintainabilityScore())
+                    .dependencyCount(analysis.getDependencyCount())
+                    .packageManager(analysis.getPackageManager())
+                    .longMethods(analysis.getLongMethods())
+                    .largeClasses(analysis.getLargeClasses())
+                    .deepNesting(analysis.getDeepNesting())
+                    .qualityScore(analysis.getQualityScore())
                     .languages(languagesJson)
                     .build();
 
@@ -208,6 +219,17 @@ public class RepositoryService {
                 .overallScore(report.getOverallScore())
                 .totalFiles(report.getTotalFiles())
                 .totalLines(report.getTotalLines())
+                .averageComplexity(report.getAverageComplexity())
+                .highComplexityFunctions(report.getHighComplexityFunctions())
+                .complexityScore(report.getComplexityScore())
+                .maintainabilityIndex(report.getMaintainabilityIndex())
+                .maintainabilityScore(report.getMaintainabilityScore())
+                .dependencyCount(report.getDependencyCount())
+                .packageManager(report.getPackageManager())
+                .longMethods(report.getLongMethods())
+                .largeClasses(report.getLargeClasses())
+                .deepNesting(report.getDeepNesting())
+                .qualityScore(report.getQualityScore())
                 .languages(languages);
 
         if (metadata != null) {

@@ -42,6 +42,39 @@ public class Report {
     @Column(name = "total_lines")
     private Integer totalLines;
 
+    @Column(name = "average_complexity")
+    private Double averageComplexity;
+
+    @Column(name = "high_complexity_functions")
+    private Integer highComplexityFunctions;
+
+    @Column(name = "complexity_score")
+    private Integer complexityScore;
+
+    @Column(name = "maintainability_index")
+    private Double maintainabilityIndex;
+
+    @Column(name = "maintainability_score")
+    private Integer maintainabilityScore;
+
+    @Column(name = "dependency_count")
+    private Integer dependencyCount;
+
+    @Column(name = "package_manager")
+    private String packageManager;
+
+    @Column(name = "long_methods")
+    private Integer longMethods;
+
+    @Column(name = "large_classes")
+    private Integer largeClasses;
+
+    @Column(name = "deep_nesting")
+    private Integer deepNesting;
+
+    @Column(name = "quality_score")
+    private Double qualityScore;
+
     @Column(columnDefinition = "TEXT")
     private String languages;
 

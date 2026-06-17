@@ -291,4 +291,34 @@
   .metric-card {
     padding: 16px 8px;
   }
+
+  .report-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.report-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 0 36px 36px 36px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.details-card-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.smell-card .metric-value {
+  color: var(--score-low);
+  background: none;
+  -webkit-text-fill-color: initial;
 }

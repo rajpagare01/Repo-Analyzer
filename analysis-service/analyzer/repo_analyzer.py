@@ -6,6 +6,9 @@ from utils.git_utils import clone_repo, cleanup_repo, count_files, count_lines, 
 from analyzer.readme_checker import check_readme
 from analyzer.test_checker import check_tests
 from analyzer.structure_checker import check_structure
+from analyzer.complexity_checker import check_complexity
+from analyzer.dependency_checker import check_dependencies
+from analyzer.smell_checker import check_smells
 
 
 class RepoAnalyzer:
@@ -33,6 +36,10 @@ class RepoAnalyzer:
             test_result = check_tests(self.repo_dir)
             structure_result = check_structure(self.repo_dir)
             
+            complexity_result = check_complexity(self.repo_dir)
+            dependency_result = check_dependencies(self.repo_dir)
+            smell_result = check_smells(self.repo_dir)
+            
             # Step 3: Collect metrics
             total_files = count_files(self.repo_dir)
             total_lines = count_lines(self.repo_dir)
@@ -44,6 +51,12 @@ class RepoAnalyzer:
             structure_score = structure_result['score']
             overall_score = round((readme_score + testing_score + structure_score) / 3, 2)
             
+            complexity_score = complexity_result['complexityScore']
+            maintainability_score = complexity_result['maintainabilityScore']
+            
+            # Quality Score Formula: (Complexity * 0.4) + (Maintainability * 0.4) + (Structure * 0.2)
+            quality_score = int(round((complexity_score * 0.4) + (maintainability_score * 0.4) + (structure_score * 0.2)))
+            
             # Step 5: Build response
             result = {
                 'readmeScore': readme_score,
@@ -53,6 +66,23 @@ class RepoAnalyzer:
                 'totalFiles': total_files,
                 'totalLines': total_lines,
                 'languages': languages,
+                
+                'averageComplexity': complexity_result['averageComplexity'],
+                'highComplexityFunctions': complexity_result['highComplexityFunctions'],
+                'complexityScore': complexity_score,
+                
+                'maintainabilityIndex': complexity_result['maintainabilityIndex'],
+                'maintainabilityScore': maintainability_score,
+                
+                'dependencyCount': dependency_result['dependencyCount'],
+                'packageManager': dependency_result['packageManager'],
+                
+                'longMethods': smell_result['longMethods'],
+                'largeClasses': smell_result['largeClasses'],
+                'deepNesting': smell_result['deepNesting'],
+                
+                'qualityScore': quality_score,
+                
                 'details': {
                     'readme': readme_result,
                     'testing': test_result,

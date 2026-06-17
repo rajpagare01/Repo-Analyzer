@@ -10,6 +10,11 @@ export default function ReportCard({ report, onReset }) {
     repoName, owner, readmeScore, testingScore, structureScore,
     overallScore, totalFiles, totalLines, languages,
     stars, forks, openIssues, defaultBranch, lastCommitDate, description,
+    averageComplexity, highComplexityFunctions, complexityScore,
+    maintainabilityIndex, maintainabilityScore,
+    dependencyCount, packageManager,
+    longMethods, largeClasses, deepNesting,
+    qualityScore
   } = report;
 
   const getGrade = (score) => {
@@ -21,7 +26,7 @@ export default function ReportCard({ report, onReset }) {
     return { letter: 'F', color: 'var(--score-low)' };
   };
 
-  const grade = getGrade(overallScore);
+  const grade = getGrade(qualityScore || overallScore);
 
   const topLanguages = languages
     ? Object.entries(languages).slice(0, 6)
@@ -90,16 +95,65 @@ export default function ReportCard({ report, onReset }) {
       {/* Score Gauges */}
       <div className="report-scores">
         <div className="report-overall">
-          <ScoreGauge score={Math.round(overallScore)} label="Overall" size={150} />
+          <ScoreGauge score={qualityScore || overallScore} label="Health Score" size={150} />
         </div>
         <div className="report-individual-scores">
-          <ScoreGauge score={readmeScore} label="README" size={100} />
-          <ScoreGauge score={testingScore} label="Testing" size={100} />
-          <ScoreGauge score={structureScore} label="Structure" size={100} />
+          <ScoreGauge score={complexityScore || 0} label="Complexity" size={100} />
+          <ScoreGauge score={maintainabilityScore || 0} label="Maintainability" size={100} />
+          <ScoreGauge score={structureScore || 0} label="Structure" size={100} />
+          <ScoreGauge score={readmeScore || 0} label="README" size={100} />
+          <ScoreGauge score={testingScore || 0} label="Testing" size={100} />
         </div>
       </div>
 
-      {/* Metrics */}
+      {/* Code Smells & Dependencies Sections */}
+      <div className="report-details-grid">
+        <div className="details-section">
+          <h4 className="report-section-title">Code Smells</h4>
+          <div className="details-card-group">
+            <div className="metric-card smell-card">
+              <span className="metric-value">{longMethods || 0}</span>
+              <span className="metric-label">Long Methods</span>
+            </div>
+            <div className="metric-card smell-card">
+              <span className="metric-value">{largeClasses || 0}</span>
+              <span className="metric-label">Large Classes</span>
+            </div>
+            <div className="metric-card smell-card">
+              <span className="metric-value">{deepNesting || 0}</span>
+              <span className="metric-label">Deep Nesting</span>
+            </div>
+            <div className="metric-card smell-card">
+              <span className="metric-value">{highComplexityFunctions || 0}</span>
+              <span className="metric-label">Complex Functions</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="details-section">
+          <h4 className="report-section-title">Repository Details</h4>
+          <div className="details-card-group">
+            <div className="metric-card">
+              <span className="metric-value">{averageComplexity != null ? averageComplexity.toFixed(1) : '—'}</span>
+              <span className="metric-label">Avg Complexity</span>
+            </div>
+            <div className="metric-card">
+              <span className="metric-value">{maintainabilityIndex != null ? maintainabilityIndex.toFixed(1) : '—'}</span>
+              <span className="metric-label">Maintainability Index</span>
+            </div>
+            <div className="metric-card">
+              <span className="metric-value">{formatNumber(dependencyCount)}</span>
+              <span className="metric-label">Dependencies</span>
+            </div>
+            <div className="metric-card">
+              <span className="metric-value">{packageManager || 'None'}</span>
+              <span className="metric-label">Package Mgr</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Basic Metrics */}
       <div className="report-metrics">
         <div className="metric-card">
           <span className="metric-value">{formatNumber(totalFiles)}</span>
