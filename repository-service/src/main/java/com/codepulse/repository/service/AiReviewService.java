@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -20,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class AiReviewService {
 
@@ -31,6 +31,16 @@ public class AiReviewService {
 
     @Value("${analysis.service.url:http://localhost:5000}")
     private String analysisServiceUrl;
+
+    public AiReviewService(AiReviewRepository aiReviewRepository,
+                           ReportRepository reportRepository,
+                           @Qualifier("analysisWebClient") WebClient webClient,
+                           ObjectMapper objectMapper) {
+        this.aiReviewRepository = aiReviewRepository;
+        this.reportRepository = reportRepository;
+        this.webClient = webClient;
+        this.objectMapper = objectMapper;
+    }
 
     public AiReviewResponse getOrGenerateReview(Long reportId) {
         Optional<AiReview> existingReview = aiReviewRepository.findByReportId(reportId);
