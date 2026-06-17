@@ -4,6 +4,7 @@ from pathlib import Path
 import lizard
 from radon.metrics import mi_visit
 from utils.git_utils import BINARY_EXTENSIONS, LANGUAGE_EXTENSIONS
+from analyzer.security_checker import scan_for_secrets
 
 # Dependency regex patterns
 MAVEN_DEP_PATTERN = re.compile(r'<dependency>')
@@ -27,7 +28,18 @@ def analyze_single_file(file_path: str) -> dict:
         'long_methods': 0,
         'large_classes': 0,
         'deep_nesting': 0,
-        'is_source_code': False
+        'is_source_code': False,
+        
+        # Security metrics
+        'hardcodedPasswords': 0,
+        'apiKeys': 0,
+        'awsKeys': 0,
+        'jwtSecrets': 0,
+        'databaseCredentials': 0,
+        'dangerousConfigs': 0,
+        'sensitiveVariables': 0,
+        'privateKeys': 0,
+        'findings': []
     }
     
     file_name = os.path.basename(file_path)
@@ -47,6 +59,13 @@ def analyze_single_file(file_path: str) -> dict:
             content = f.read()
     except Exception:
         return metrics
+
+    # Scan for secrets (Security Analytics)
+    security_results = scan_for_secrets(file_name, content)
+    for key in ['hardcodedPasswords', 'apiKeys', 'awsKeys', 'jwtSecrets', 
+                'databaseCredentials', 'dangerousConfigs', 'sensitiveVariables', 'privateKeys']:
+        metrics[key] = security_results[key]
+    metrics['findings'] = security_results['findings']
 
     # Count lines
     lines = content.splitlines()

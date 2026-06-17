@@ -73,7 +73,44 @@ public class Report {
     private Integer deepNesting;
 
     @Column(name = "quality_score")
-    private Double qualityScore;
+    private Integer qualityScore;
+
+    // Phase 3: Security Analytics
+    @Column(name = "security_score")
+    private Integer securityScore;
+
+    @Column(name = "hardcoded_passwords")
+    private Integer hardcodedPasswords;
+
+    @Column(name = "api_keys")
+    private Integer apiKeys;
+
+    @Column(name = "aws_keys")
+    private Integer awsKeys;
+
+    @Column(name = "jwt_secrets")
+    private Integer jwtSecrets;
+
+    @Column(name = "database_credentials")
+    private Integer databaseCredentials;
+
+    @Column(name = "dangerous_configs")
+    private Integer dangerousConfigs;
+
+    @Column(name = "sensitive_variables")
+    private Integer sensitiveVariables;
+
+    @Column(name = "private_keys")
+    private Integer privateKeys;
+
+    @Column(name = "risk_level")
+    private String riskLevel;
+
+    @Column(name = "security_findings", columnDefinition = "JSON")
+    private String securityFindings;
+
+    @Column(name = "vulnerable_dependencies")
+    private Integer vulnerableDependencies;
 
     @Column(columnDefinition = "TEXT")
     private String languages;

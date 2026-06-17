@@ -14,7 +14,10 @@ export default function ReportCard({ report, onReset }) {
     maintainabilityIndex, maintainabilityScore,
     dependencyCount, packageManager,
     longMethods, largeClasses, deepNesting,
-    qualityScore
+    qualityScore,
+    securityScore, hardcodedPasswords, apiKeys, awsKeys, jwtSecrets,
+    databaseCredentials, dangerousConfigs, sensitiveVariables, privateKeys,
+    riskLevel, securityFindings, vulnerableDependencies
   } = report;
 
   const getGrade = (score) => {
@@ -27,6 +30,26 @@ export default function ReportCard({ report, onReset }) {
   };
 
   const grade = getGrade(qualityScore || overallScore);
+
+  const getRiskColor = (risk) => {
+    switch (risk) {
+      case 'LOW': return '#10b981'; // Green
+      case 'MEDIUM': return '#f59e0b'; // Yellow
+      case 'HIGH': return '#f97316'; // Orange
+      case 'CRITICAL': return '#ef4444'; // Red
+      default: return 'var(--text-muted)';
+    }
+  };
+
+  let parsedFindings = [];
+  if (securityFindings) {
+    try {
+      const parsed = JSON.parse(securityFindings);
+      parsedFindings = parsed.securityIssues || [];
+    } catch (e) {
+      console.error("Failed to parse securityFindings");
+    }
+  }
 
   const topLanguages = languages
     ? Object.entries(languages).slice(0, 6)
@@ -152,6 +175,101 @@ export default function ReportCard({ report, onReset }) {
           </div>
         </div>
       </div>
+
+      {/* Security Analytics Section */}
+      {securityScore !== undefined && (
+        <div className="report-security-section">
+          <div className="security-header">
+            <h3 className="security-title">Security Analytics</h3>
+          </div>
+          
+          <div className="security-grid">
+            <div className="security-overview">
+              <div className="security-score-container">
+                <ScoreGauge score={securityScore} label="Security Score" size={120} />
+              </div>
+              <div className="risk-level-container" style={{ borderColor: getRiskColor(riskLevel) }}>
+                <span className="risk-label">Risk Level</span>
+                <span className="risk-value" style={{ color: getRiskColor(riskLevel) }}>{riskLevel}</span>
+              </div>
+            </div>
+
+            <div className="security-issues">
+              <h4 className="report-section-title">Detected Issues</h4>
+              <ul className="issues-list">
+                <li className={awsKeys > 0 ? "issue-item danger" : "issue-item safe"}>
+                  <span className="issue-icon">{awsKeys > 0 ? '⚠' : '✓'}</span>
+                  {awsKeys > 0 ? `${awsKeys} AWS Keys` : 'No AWS Keys'}
+                </li>
+                <li className={apiKeys > 0 ? "issue-item danger" : "issue-item safe"}>
+                  <span className="issue-icon">{apiKeys > 0 ? '⚠' : '✓'}</span>
+                  {apiKeys > 0 ? `${apiKeys} API Keys` : 'No API Keys'}
+                </li>
+                <li className={jwtSecrets > 0 ? "issue-item danger" : "issue-item safe"}>
+                  <span className="issue-icon">{jwtSecrets > 0 ? '⚠' : '✓'}</span>
+                  {jwtSecrets > 0 ? `${jwtSecrets} JWT Secrets` : 'No JWT Secrets'}
+                </li>
+                <li className={databaseCredentials > 0 ? "issue-item danger" : "issue-item safe"}>
+                  <span className="issue-icon">{databaseCredentials > 0 ? '⚠' : '✓'}</span>
+                  {databaseCredentials > 0 ? `${databaseCredentials} DB Credentials` : 'No Database Credentials'}
+                </li>
+                <li className={privateKeys > 0 ? "issue-item danger" : "issue-item safe"}>
+                  <span className="issue-icon">{privateKeys > 0 ? '⚠' : '✓'}</span>
+                  {privateKeys > 0 ? `${privateKeys} Private Keys` : 'No Private Keys'}
+                </li>
+                <li className={hardcodedPasswords > 0 ? "issue-item danger" : "issue-item safe"}>
+                  <span className="issue-icon">{hardcodedPasswords > 0 ? '⚠' : '✓'}</span>
+                  {hardcodedPasswords > 0 ? `${hardcodedPasswords} Hardcoded Passwords` : 'No Hardcoded Passwords'}
+                </li>
+                <li className={dangerousConfigs > 0 ? "issue-item warning" : "issue-item safe"}>
+                  <span className="issue-icon">{dangerousConfigs > 0 ? '⚠' : '✓'}</span>
+                  {dangerousConfigs > 0 ? `${dangerousConfigs} Dangerous Configs` : 'No Dangerous Configs'}
+                </li>
+                <li className={sensitiveVariables > 0 ? "issue-item warning" : "issue-item safe"}>
+                  <span className="issue-icon">{sensitiveVariables > 0 ? '⚠' : '✓'}</span>
+                  {sensitiveVariables > 0 ? `${sensitiveVariables} Sensitive Env Vars` : 'No Sensitive Env Vars'}
+                </li>
+                {vulnerableDependencies !== null && vulnerableDependencies !== undefined && (
+                  <li className={vulnerableDependencies > 0 ? "issue-item danger" : "issue-item safe"}>
+                    <span className="issue-icon">{vulnerableDependencies > 0 ? '⚠' : '✓'}</span>
+                    {vulnerableDependencies > 0 ? `${vulnerableDependencies} Vulnerable Dependencies` : 'No Vulnerable Dependencies'}
+                  </li>
+                )}
+              </ul>
+            </div>
+            
+            {parsedFindings.length > 0 && (
+              <div className="security-findings">
+                <h4 className="report-section-title">Findings Details</h4>
+                <div className="findings-table-container">
+                  <table className="findings-table">
+                    <thead>
+                      <tr>
+                        <th>Severity</th>
+                        <th>Type</th>
+                        <th>File</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {parsedFindings.map((finding, idx) => (
+                        <tr key={idx}>
+                          <td>
+                            <span className={`severity-badge ${finding.severity.toLowerCase()}`}>
+                              {finding.severity}
+                            </span>
+                          </td>
+                          <td>{finding.type}</td>
+                          <td className="finding-file">{finding.file}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Basic Metrics */}
       <div className="report-metrics">

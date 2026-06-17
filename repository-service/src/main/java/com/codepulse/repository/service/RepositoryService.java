@@ -145,6 +145,18 @@ public class RepositoryService {
                     .largeClasses(analysis.getLargeClasses())
                     .deepNesting(analysis.getDeepNesting())
                     .qualityScore(analysis.getQualityScore())
+                    .securityScore(analysis.getSecurityScore())
+                    .hardcodedPasswords(analysis.getHardcodedPasswords())
+                    .apiKeys(analysis.getApiKeys())
+                    .awsKeys(analysis.getAwsKeys())
+                    .jwtSecrets(analysis.getJwtSecrets())
+                    .databaseCredentials(analysis.getDatabaseCredentials())
+                    .dangerousConfigs(analysis.getDangerousConfigs())
+                    .sensitiveVariables(analysis.getSensitiveVariables())
+                    .privateKeys(analysis.getPrivateKeys())
+                    .riskLevel(analysis.getRiskLevel())
+                    .securityFindings(analysis.getSecurityFindings())
+                    .vulnerableDependencies(analysis.getVulnerableDependencies())
                     .languages(languagesJson)
                     .build();
 
@@ -230,6 +242,18 @@ public class RepositoryService {
                 .largeClasses(report.getLargeClasses())
                 .deepNesting(report.getDeepNesting())
                 .qualityScore(report.getQualityScore())
+                .securityScore(report.getSecurityScore())
+                .hardcodedPasswords(report.getHardcodedPasswords())
+                .apiKeys(report.getApiKeys())
+                .awsKeys(report.getAwsKeys())
+                .jwtSecrets(report.getJwtSecrets())
+                .databaseCredentials(report.getDatabaseCredentials())
+                .dangerousConfigs(report.getDangerousConfigs())
+                .sensitiveVariables(report.getSensitiveVariables())
+                .privateKeys(report.getPrivateKeys())
+                .riskLevel(report.getRiskLevel())
+                .securityFindings(report.getSecurityFindings())
+                .vulnerableDependencies(report.getVulnerableDependencies())
                 .languages(languages);
 
         if (metadata != null) {

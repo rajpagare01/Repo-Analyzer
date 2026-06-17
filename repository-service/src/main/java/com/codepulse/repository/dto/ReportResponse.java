@@ -37,7 +37,21 @@ public class ReportResponse {
     private Integer largeClasses;
     private Integer deepNesting;
     
-    private Double qualityScore;
+    private Integer qualityScore;
+    
+    // Security Analytics
+    private Integer securityScore;
+    private Integer hardcodedPasswords;
+    private Integer apiKeys;
+    private Integer awsKeys;
+    private Integer jwtSecrets;
+    private Integer databaseCredentials;
+    private Integer dangerousConfigs;
+    private Integer sensitiveVariables;
+    private Integer privateKeys;
+    private String riskLevel;
+    private String securityFindings;
+    private Integer vulnerableDependencies;
 
     private Map<String, Integer> languages;
 

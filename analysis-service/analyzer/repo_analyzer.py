@@ -58,6 +58,17 @@ class RepoAnalyzer:
             
             language_counts = {}
             
+            # Security
+            hardcoded_passwords = 0
+            api_keys = 0
+            aws_keys = 0
+            jwt_secrets = 0
+            database_credentials = 0
+            dangerous_configs = 0
+            sensitive_variables = 0
+            private_keys = 0
+            security_findings = []
+            
             # Use ThreadPoolExecutor for fast I/O and process parallelization
             workers = min(32, os.cpu_count() + 4 if os.cpu_count() else 8)
             with ThreadPoolExecutor(max_workers=workers) as executor:
@@ -82,6 +93,18 @@ class RepoAnalyzer:
                     if metrics['language']:
                         lang = metrics['language']
                         language_counts[lang] = language_counts.get(lang, 0) + 1
+                        
+                    # Aggregate security
+                    hardcoded_passwords += metrics['hardcodedPasswords']
+                    api_keys += metrics['apiKeys']
+                    aws_keys += metrics['awsKeys']
+                    jwt_secrets += metrics['jwtSecrets']
+                    database_credentials += metrics['databaseCredentials']
+                    dangerous_configs += metrics['dangerousConfigs']
+                    sensitive_variables += metrics['sensitiveVariables']
+                    private_keys += metrics['privateKeys']
+                    if metrics['findings']:
+                        security_findings.extend(metrics['findings'])
 
             # Format languages
             languages = dict(sorted(language_counts.items(), key=lambda x: x[1], reverse=True))
@@ -115,6 +138,30 @@ class RepoAnalyzer:
             # Quality Score Formula: (Complexity * 0.4) + (Maintainability * 0.4) + (Structure * 0.2)
             quality_score = int(round((complexity_score * 0.4) + (maintainability_score * 0.4) + (structure_score * 0.2)))
             
+            # Security Score
+            security_score = 100
+            security_score -= (hardcoded_passwords * 10)
+            security_score -= (api_keys * 15)
+            security_score -= (aws_keys * 20)
+            security_score -= (jwt_secrets * 10)
+            security_score -= (database_credentials * 10)
+            security_score -= (dangerous_configs * 5)
+            security_score -= (sensitive_variables * 2)
+            security_score -= (private_keys * 25)
+            
+            security_score = max(0, security_score)
+            
+            if security_score >= 90:
+                risk_level = "LOW"
+            elif security_score >= 70:
+                risk_level = "MEDIUM"
+            elif security_score >= 50:
+                risk_level = "HIGH"
+            else:
+                risk_level = "CRITICAL"
+            
+            import json
+            
             # Step 6: Build response
             result = {
                 'readmeScore': readme_score,
@@ -140,6 +187,19 @@ class RepoAnalyzer:
                 'deepNesting': deep_nesting,
                 
                 'qualityScore': quality_score,
+                
+                'securityScore': security_score,
+                'hardcodedPasswords': hardcoded_passwords,
+                'apiKeys': api_keys,
+                'awsKeys': aws_keys,
+                'jwtSecrets': jwt_secrets,
+                'databaseCredentials': database_credentials,
+                'dangerousConfigs': dangerous_configs,
+                'sensitiveVariables': sensitive_variables,
+                'privateKeys': private_keys,
+                'riskLevel': risk_level,
+                'securityFindings': json.dumps({"securityIssues": security_findings}) if security_findings else None,
+                'vulnerableDependencies': None, # Placeholder
                 
                 'details': {
                     'readme': readme_result,
