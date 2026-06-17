@@ -26,7 +26,7 @@ public class WebClientConfig {
     public WebClient analysisWebClient(WebClient.Builder builder) {
         HttpClient httpClient = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
-                .responseTimeout(Duration.ofSeconds(120));
+                .responseTimeout(Duration.ofSeconds(600));
 
         return builder
                 .baseUrl(analysisServiceUrl)
