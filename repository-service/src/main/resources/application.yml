@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: codepulse-repository-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/codepulse?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: Rajpagare@12345
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+server:
+  port: 8080
+
+# CodePulse service URLs
+codepulse:
+  analysis-service:
+    url: http://localhost:5000
+  github-api:
+    url: https://api.github.com
+
+# Logging
+logging:
+  level:
+    com.codepulse: INFO
+    org.springframework.web: INFO

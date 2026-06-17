@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: codepulse-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: codepulse
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Python Analysis Service
+  analysis-service:
+    build:
+      context: ./analysis-service
+      dockerfile: Dockerfile
+    container_name: codepulse-analysis
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Spring Boot Repository Service
+  repository-service:
+    build:
+      context: ./repository-service
+      dockerfile: Dockerfile
+    container_name: codepulse-repository
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      analysis-service:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/codepulse?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      CODEPULSE_ANALYSIS_SERVICE_URL: http://analysis-service:5000
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: codepulse-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - repository-service
+
+volumes:
+  mysql_data:

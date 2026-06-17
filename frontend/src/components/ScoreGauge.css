@@ -1,0 +1,38 @@
+.score-gauge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-gauge-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.score-gauge-progress {
+  transition: stroke-dashoffset 1.2s ease-out;
+  animation: gaugeProgress 1.2s ease-out;
+}
+
+.score-gauge-text {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.score-gauge-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.score-gauge-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
