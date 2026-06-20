@@ -13,6 +13,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AiReviewResponse {
+    private String provider;
     private String repositoryGrade;
     private Integer confidenceScore;
     private String executiveSummary;

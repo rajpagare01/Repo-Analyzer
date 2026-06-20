@@ -62,11 +62,37 @@ public class RepositoryController {
     }
 
     /**
-     * Get or generate AI review for a completed repository.
+     * Start generating an AI review for a completed repository.
+     * Returns 202 Accepted immediately.
+     */
+    @PostMapping("/{id}/ai-review")
+    public ResponseEntity<java.util.Map<String, String>> startAiReview(@PathVariable Long id) {
+        aiReviewService.generateReviewInBackground(id);
+        java.util.Map<String, String> response = new java.util.HashMap<>();
+        response.put("status", "GENERATING");
+        response.put("message", "AI review generation started");
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+    }
+
+    /**
+     * Get the polling status of an AI review.
+     */
+    @GetMapping("/{id}/ai-review/status")
+    public ResponseEntity<AiReviewStatusResponse> getAiReviewStatus(@PathVariable Long id) {
+        ReportResponse report = repositoryService.getReport(id);
+        return ResponseEntity.ok(AiReviewStatusResponse.builder()
+                .status(report.getAiReviewStatus())
+                .failureReason(report.getAiReviewFailureReason())
+                .generationTimeSeconds(report.getAiReviewGenerationTimeSeconds())
+                .build());
+    }
+
+    /**
+     * Get a completed AI review for a repository.
      */
     @GetMapping("/{id}/ai-review")
     public ResponseEntity<AiReviewResponse> getAiReview(@PathVariable Long id) {
-        return ResponseEntity.ok(aiReviewService.getOrGenerateReview(id));
+        return ResponseEntity.ok(aiReviewService.getReview(id));
     }
 
     /**

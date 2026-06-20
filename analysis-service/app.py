@@ -5,6 +5,11 @@ Flask application that provides repository analysis endpoints.
 Clones GitHub repositories and computes quality metrics.
 """
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import logging
 import re
 from flask import Flask, request, jsonify, send_file
@@ -18,6 +23,11 @@ logging.basicConfig(
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
 )
 logger = logging.getLogger('codepulse-analysis')
+
+logger.info(
+    "Gemini API key loaded: %s",
+    bool(os.getenv("GEMINI_API_KEY"))
+)
 
 app = Flask(__name__)
 

@@ -12,6 +12,7 @@ C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\reposito
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\dto\ReportResponse.java
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\dto\RepositoryRequest.java
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\config\WebClientConfig.java
+C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\dto\AiReviewStatusResponse.java
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\entity\RepositoryEntity.java
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\exception\AnalysisException.java
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\exception\RepositoryNotFoundException.java
@@ -20,6 +21,7 @@ C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\reposito
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\dto\RepositoryResponse.java
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\entity\Report.java
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\dto\StatusResponse.java
+C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\enums\AiReviewStatus.java
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\repository\AiReviewRepository.java
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\entity\AiReview.java
 C:\Project\Repo-analyzer\repository-service\src\main\java\com\codepulse\repository\repository\GitHubMetadataRepository.java

@@ -254,7 +254,10 @@ public class RepositoryService {
                 .riskLevel(report.getRiskLevel())
                 .securityFindings(report.getSecurityFindings())
                 .vulnerableDependencies(report.getVulnerableDependencies())
-                .languages(languages);
+                .languages(languages)
+                .aiReviewStatus(report.getAiReviewStatus())
+                .aiReviewFailureReason(report.getAiReviewFailureReason())
+                .aiReviewGenerationTimeSeconds(report.getAiReviewGenerationTimeSeconds());
 
         if (metadata != null) {
             responseBuilder

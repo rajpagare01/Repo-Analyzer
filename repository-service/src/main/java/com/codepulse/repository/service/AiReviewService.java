@@ -12,8 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,17 +46,28 @@ public class AiReviewService {
         this.objectMapper = objectMapper;
     }
 
-    public AiReviewResponse getOrGenerateReview(Long reportId) {
-        Optional<AiReview> existingReview = aiReviewRepository.findByReportId(reportId);
-        
-        if (existingReview.isPresent()) {
-            log.info("Returning cached AI review for report {}", reportId);
-            return mapToDto(existingReview.get());
-        }
+    public AiReviewResponse getReview(Long reportId) {
+        AiReview existingReview = aiReviewRepository.findByReportId(reportId)
+                .orElseThrow(() -> new RuntimeException("AI review not found for report " + reportId));
+        return mapToDto(existingReview);
+    }
 
-        log.info("Generating new AI review for report {}", reportId);
+    @Async("analysisExecutor")
+    public void generateReviewInBackground(Long reportId) {
+        log.info("Starting background AI review for report {}", reportId);
+        
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        if (report.getAiReviewStatus() == com.codepulse.repository.enums.AiReviewStatus.GENERATING) {
+            log.warn("AI review is already generating for report {}", reportId);
+            return;
+        }
+
+        report.setAiReviewStatus(com.codepulse.repository.enums.AiReviewStatus.GENERATING);
+        report.setAiReviewStartedAt(LocalDateTime.now());
+        report.setAiReviewFailureReason(null);
+        reportRepository.save(report);
 
         Map<String, Object> metrics = new HashMap<>();
         metrics.put("qualityScore", report.getQualityScore());
@@ -85,7 +100,7 @@ public class AiReviewService {
             
             AiReview aiReview = AiReview.builder()
                     .report(report)
-                    .provider("ollama") // Configured in python mostly, hardcoded here as generic provider cache info
+                    .provider(responseDto.getProvider() != null ? responseDto.getProvider() : "unknown")
                     .repositoryGrade(responseDto.getRepositoryGrade())
                     .confidenceScore(responseDto.getConfidenceScore())
                     .executiveSummary(responseDto.getExecutiveSummary())
@@ -98,17 +113,24 @@ public class AiReviewService {
                     .build();
 
             aiReviewRepository.save(aiReview);
-            return responseDto;
+            
+            report.setAiReviewStatus(com.codepulse.repository.enums.AiReviewStatus.COMPLETED);
+            report.setAiReviewGenerationTimeSeconds(Duration.between(report.getAiReviewStartedAt(), LocalDateTime.now()).getSeconds());
+            reportRepository.save(report);
 
         } catch (Exception e) {
-            log.error("Failed to generate AI review", e);
-            throw new RuntimeException("AI Review Generation Failed: " + e.getMessage());
+            log.error("Failed to generate AI review in background", e);
+            report.setAiReviewStatus(com.codepulse.repository.enums.AiReviewStatus.FAILED);
+            report.setAiReviewFailureReason(e.getMessage());
+            report.setAiReviewGenerationTimeSeconds(Duration.between(report.getAiReviewStartedAt(), LocalDateTime.now()).getSeconds());
+            reportRepository.save(report);
         }
     }
 
     private AiReviewResponse mapToDto(AiReview aiReview) {
         try {
             return AiReviewResponse.builder()
+                    .provider(aiReview.getProvider())
                     .repositoryGrade(aiReview.getRepositoryGrade())
                     .confidenceScore(aiReview.getConfidenceScore())
                     .executiveSummary(aiReview.getExecutiveSummary())
@@ -126,7 +148,13 @@ public class AiReviewService {
     }
 
     public byte[] generatePdfReport(Long reportId) {
-        AiReviewResponse review = getOrGenerateReview(reportId);
+        AiReviewResponse review = null;
+        try {
+            review = getReview(reportId);
+        } catch (Exception e) {
+            log.warn("Could not get AI review for PDF generation: {}", e.getMessage());
+        }
+
         
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new RuntimeException("Report not found"));

@@ -28,6 +28,10 @@ services:
       - "5000:5000"
     environment:
       FLASK_ENV: production
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3}
+      ENABLE_LLM_FALLBACK: ${ENABLE_LLM_FALLBACK:-true}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 10s

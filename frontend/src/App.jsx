@@ -111,7 +111,12 @@ export default function App() {
           {view === 'report' && report && (
             <>
               <ReportCard report={report} onReset={handleReset} />
-              <AIReviewCard reportId={repoId} />
+              <AIReviewCard 
+                reportId={repoId} 
+                initialStatus={report.aiReviewStatus}
+                initialFailureReason={report.aiReviewFailureReason}
+                initialTime={report.aiReviewGenerationTimeSeconds}
+              />
             </>
           )}
         </div>

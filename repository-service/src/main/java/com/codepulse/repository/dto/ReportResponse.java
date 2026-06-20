@@ -62,4 +62,9 @@ public class ReportResponse {
     private String defaultBranch;
     private String lastCommitDate;
     private String description;
+
+    // AI Review Status Tracking
+    private com.codepulse.repository.enums.AiReviewStatus aiReviewStatus;
+    private String aiReviewFailureReason;
+    private Long aiReviewGenerationTimeSeconds;
 }

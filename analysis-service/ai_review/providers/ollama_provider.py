@@ -17,7 +17,8 @@ class OllamaProvider(BaseProvider):
         }
         
         try:
-            response = requests.post(url, json=payload, timeout=60)
+            # Increased timeout to 900 seconds to allow for very slow local LLM generation
+            response = requests.post(url, json=payload, timeout=900)
             response.raise_for_status()
             data = response.json()
             return data.get("response", "{}")

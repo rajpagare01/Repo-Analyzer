@@ -115,6 +115,19 @@ public class Report {
     @Column(columnDefinition = "TEXT")
     private String languages;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ai_review_status", length = 20)
+    private com.codepulse.repository.enums.AiReviewStatus aiReviewStatus = com.codepulse.repository.enums.AiReviewStatus.NOT_STARTED;
+
+    @Column(name = "ai_review_failure_reason", columnDefinition = "TEXT")
+    private String aiReviewFailureReason;
+
+    @Column(name = "ai_review_started_at")
+    private LocalDateTime aiReviewStartedAt;
+
+    @Column(name = "ai_review_generation_time_seconds")
+    private Long aiReviewGenerationTimeSeconds;
+
     @Column(name = "generated_at", nullable = false, updatable = false)
     private LocalDateTime generatedAt;
 

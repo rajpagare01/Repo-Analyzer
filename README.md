@@ -180,11 +180,73 @@ GET /api/repositories
 | Structure | 0–100 | 6 checks × ~17pts each: README, LICENSE, .gitignore, tests, CI/CD, dependency file |
 | Overall | Average | (readme + testing + structure) / 3 |
 
+## AI Review — LLM Provider Configuration
+
+CodePulse AI uses **Google Gemini** as the default AI provider for generating repository reviews. Reviews are generated in **2–10 seconds** (compared to 10+ minutes with local Ollama).
+
+### Gemini Setup
+
+1. Create Gemini API key — [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. Add `.env`
+
+```env
+LLM_PROVIDER=gemini
+
+GEMINI_API_KEY=your_key_here
+
+ENABLE_LLM_FALLBACK=true
+
+OLLAMA_MODEL=llama3
+```
+
+3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Start service
+
+```bash
+python app.py
+```
+
+### Supported Providers
+
+| Provider | Env Value | Model | Speed |
+|----------|-----------|-------|-------|
+| **Gemini** (default) | `gemini` | `gemini-2.5-flash` | 2–10 sec |
+| OpenAI | `openai` | `gpt-4-turbo` | 5–15 sec |
+| Ollama (local) | `ollama` | `llama3` (configurable) | 10+ min |
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LLM_PROVIDER` | `gemini` | Active AI provider: `gemini`, `openai`, or `ollama` |
+| `GEMINI_API_KEY` | — | Google Gemini API key (required when using Gemini) |
+| `OLLAMA_MODEL` | `llama3` | Model name for Ollama provider |
+| `ENABLE_LLM_FALLBACK` | `true` | Auto-fallback to Ollama when Gemini fails at runtime |
+
+### Failover Strategy
+
+When `ENABLE_LLM_FALLBACK=true`, the system automatically falls back to Ollama if Gemini encounters a runtime error (rate limit, network issue, timeout, outage):
+
+```
+Gemini (Primary)
+       ↓
+ Generation Failure?
+       ↓ Yes
+Ollama (Fallback)
+```
+
+This ensures users always receive a review, even during API outages.
+
 ## Future Phases
 
 - **Phase 2**: Cyclomatic complexity, code smell detection, dependency analysis
 - **Phase 3**: Security vulnerability scanning, secret/API key detection
-- **Phase 4**: AI-generated repository review and recommendations (LLM integration)
+- **Phase 4**: ~~AI-generated repository review and recommendations~~ ✅ **Completed** (Gemini + Ollama + OpenAI)
 
 ## License
 

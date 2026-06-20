@@ -1,5 +1,8 @@
 import json
+import logging
 from .llm_factory import LLMFactory
+
+logger = logging.getLogger('codepulse-analysis')
 
 PROMPT_TEMPLATE = """
 You are a Principal Software Architect and Staff Security Engineer conducting a repository engineering review.
@@ -46,12 +49,10 @@ def generate_ai_review(metrics: dict) -> dict:
     Takes a dictionary of static analysis metrics, formats the prompt,
     calls the active LLM provider, and parses the JSON result.
     """
-    provider = LLMFactory.get_provider()
-    
     prompt = PROMPT_TEMPLATE.format(metrics_json=json.dumps(metrics, indent=2))
     
-    print(f"[AI Review Engine] Calling LLM via {provider.__class__.__name__}...")
-    raw_response = provider.generate_review(prompt)
+    logger.info("Generating AI review via LLMFactory (with fallback)...")
+    raw_response, provider_name = LLMFactory.generate_with_fallback(prompt)
     
     try:
         # Some LLMs might wrap output in markdown blocks despite instructions
@@ -62,12 +63,22 @@ def generate_ai_review(metrics: dict) -> dict:
             clean_json = clean_json[:-3]
             
         review_data = json.loads(clean_json)
+        
+        # Inject the provider that actually generated this review
+        review_data["provider"] = provider_name
+        
+        # Validate that the generated JSON actually contains the required fields
+        if "repositoryGrade" not in review_data:
+            raise ValueError("Missing 'repositoryGrade' in LLM output")
+
+        logger.info("AI review generated successfully")
         return review_data
-    except json.JSONDecodeError as e:
-        print(f"[AI Review Engine] Failed to parse JSON: {str(e)}\nRaw Response: {raw_response}")
+    except (json.JSONDecodeError, ValueError) as e:
+        logger.error(f"Failed to parse AI review JSON: {e}\nRaw Response: {raw_response}")
         return {
             "repositoryGrade": "N/A",
             "confidenceScore": 0,
+            "provider": provider_name,
             "executiveSummary": "Failed to generate AI review due to LLM parsing error.",
             "strengths": [],
             "weaknesses": [],
